@@ -1,0 +1,8 @@
+name=StuntCopter
+author=Nolen Scaife
+description=A basic port of StuntCopter to Playdate
+bundleID=io.nolen.stuntcopter
+version=0.1
+buildNumber=1
+imagePath=SystemAssets/
+launchSoundPath=
