@@ -33,6 +33,8 @@ function Game:init()
 	self.currentHiScore = 0
 	self.currentTry = 1
 	self.heightAtJump = 0
+	self.gravityStatus = {"FLYING", "OH BOY", "NORMAL", "HEAVY"}
+	self.currentGravity = 4
 	
 	self.jumper = Jumper()
 	self.copter = Copter()
@@ -104,7 +106,7 @@ function Game:update()
 			self.jumper:startFalling()
 		elseif self.jumper:isFalling() then
 			local collisions, len, x, y
-			x, y, collisions, len = self.jumper:moveWithCollisions(self.jumper.x, self.jumper.y + 1)
+			x, y, collisions, len = self.jumper:moveWithCollisions(self.jumper.x, self.jumper.y + self.currentGravity)
 			for i = 1, len do		
 				local c = collisions[i]
 				if c.other:isa(StatusBar) then
@@ -154,7 +156,7 @@ function Game:update()
 		-- refresh all of the displayed values
 		self.displayedHeight:setValue(self.copter:getHeight())
 		self.displayedSpeed:setValue(self.wagon:getStatus())
-		self.displayedGravity:setValue("LOW")
+		self.displayedGravity:setValue(self.gravityStatus[self.currentGravity])
 		self.displayedScore:setValue(string.format("%06d", self.currentScore))
 		self.displayedHiScore:setValue(string.format("%06d", self.currentHiScore))
 		
