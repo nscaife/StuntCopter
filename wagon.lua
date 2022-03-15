@@ -20,6 +20,8 @@ function Wagon:init()
 	self.currentImageIndex = 1
 	self.slowFrameSkip = true
 	self.animateSuccess = false
+	self.status = {"WALK", "TROT", "GALLOP"}
+	self.speed = 1
 end
 
 
@@ -39,7 +41,7 @@ function Wagon:update()
 			if self.currentImageIndex > 3 then self.currentImageIndex = 1 end
 		
 		end
-		self.position.x += 1
+		self.position.x += self.speed
 			
 		if self.x > 400 then self.position.x = -70
 		elseif self.x < -70 then self.position.x = 400 end
@@ -67,4 +69,12 @@ end
 
 function Wagon:hitHorse()
 	self:setImage(self.wagonImageTable[5])
+end
+
+function Wagon:setSpeed(s)
+	self.speed = s
+end
+
+function Wagon:getStatus()
+	return self.status[self.speed]
 end

@@ -43,7 +43,6 @@ function Game:init()
 	self.displayedGravity = CurrentProps()
 	self.displayedScore = Score()
 	self.displayedHiScore = Score()
-
 	
 	self.displayedHeight:moveTo(330,189)
 	self.displayedSpeed:moveTo(330,206)
@@ -154,7 +153,7 @@ function Game:update()
 		
 		-- refresh all of the displayed values
 		self.displayedHeight:setValue(self.copter:getHeight())
-		self.displayedSpeed:setValue("WALK")
+		self.displayedSpeed:setValue(self.wagon:getStatus())
 		self.displayedGravity:setValue("LOW")
 		self.displayedScore:setValue(string.format("%06d", self.currentScore))
 		self.displayedHiScore:setValue(string.format("%06d", self.currentHiScore))
