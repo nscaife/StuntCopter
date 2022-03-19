@@ -8,6 +8,7 @@ import "currentprops"
 import "score"
 import "thumb"
 import "level"
+import "yoke"
 
 class('Game').extends(playdate.graphics.sprite)
 local gfx <const> = playdate.graphics
@@ -15,6 +16,9 @@ local gfx <const> = playdate.graphics
 local GAMEOVER_NORMAL <const> = 0
 local GAMEOVER_DRIVER <const> = 1
 local GAMEOVER_HORSE <const>  = 2
+COPTER_MAX_HEIGHT = 188--139
+COPTER_MIN_HEIGHT = 46
+
 
 local debug_x = -1
 local debug_y = -1
@@ -39,6 +43,7 @@ function Game:init()
 	self.displayedScore = Score()
 	self.displayedHiScore = Score()
 	self.displayedLevel = Level()
+	self.yoke = Yoke()
 	
 	self.saveData = playdate.datastore.read()
 	if self.saveData == nil then
@@ -52,7 +57,6 @@ function Game:init()
 	self.displayedScore:moveTo(143,199)
 	self.displayedHiScore:moveTo(143,224)
 	
-	
 	gfx.sprite.add(self.jumper)
 	gfx.sprite.add(self.copter)
 	gfx.sprite.add(self.statusbar)
@@ -63,6 +67,7 @@ function Game:init()
 	gfx.sprite.add(self.displayedScore)
 	gfx.sprite.add(self.displayedHiScore)
 	gfx.sprite.add(self.displayedLevel)
+	gfx.sprite.add(self.yoke)
 	
 	self.thumbTable = {}
 	for i = 1, 5, 1
@@ -103,6 +108,18 @@ function Game:reset()
 end
 
 function Game:update()
+	
+	if gameOn then
+		self.copter.position.x = self.copter.position.x + self.yoke.x_velocity
+		self.copter.position.y = self.copter.position.y + self.yoke.y_velocity
+		
+		if self.copter.position.y < 0 then self.copter.position.y = 0 end
+		if self.copter.x > 435 then self.copter.position.x = -70 end
+		if self.copter.x < -70 then self.copter.position.x = 435 end
+		if self.copter:getHeight() < COPTER_MIN_HEIGHT then self.copter.position.y = COPTER_MAX_HEIGHT - COPTER_MIN_HEIGHT end
+
+	end
+
 	
 	self.copter:moveTo(self.copter.position)
 	self.wagon:moveTo(self.wagon.position)
@@ -304,6 +321,7 @@ function Game:NewGameDisplay(enabled)
 		self.wagon:reset()
 		self.jumper:reset()
 		self.jumper:setVisible(true)
+		self.yoke:reset()
 
 	end
 
