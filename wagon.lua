@@ -75,6 +75,12 @@ function Wagon:setSpeed(s)
 	self.speed = s
 end
 
+function Wagon:increaseSpeed()
+	if self.speed < 3 then
+		self:setSpeed(self.speed + 1)
+	end
+end
+
 function Wagon:getStatus()
 	return self.status[self.speed]
 end

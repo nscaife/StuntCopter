@@ -7,6 +7,7 @@ import "wagon"
 import "currentprops"
 import "score"
 import "thumb"
+import "level"
 
 class('Game').extends(playdate.graphics.sprite)
 local gfx <const> = playdate.graphics
@@ -29,12 +30,15 @@ function Game:init()
 	Game.super.init(self)
 
 	self.successAnimationFrameCount = -1
+	self.levelFrameCount = -1
+	self.currentLevel = 1
 	self.currentScore = 0
 	self.currentHiScore = 0
 	self.currentTry = 1
 	self.heightAtJump = 0
 	self.gravityStatus = {"FLYING", "OH BOY", "NORMAL", "HEAVY"}
 	self.currentGravity = 4
+	self.gameWillEnd = false -- use this in case of splat
 	
 	self.jumper = Jumper()
 	self.copter = Copter()
@@ -45,6 +49,7 @@ function Game:init()
 	self.displayedGravity = CurrentProps()
 	self.displayedScore = Score()
 	self.displayedHiScore = Score()
+	self.displayedLevel = Level()
 	
 	self.displayedHeight:moveTo(330,189)
 	self.displayedSpeed:moveTo(330,206)
@@ -62,6 +67,7 @@ function Game:init()
 	gfx.sprite.add(self.displayedGravity)
 	gfx.sprite.add(self.displayedScore)
 	gfx.sprite.add(self.displayedHiScore)
+	gfx.sprite.add(self.displayedLevel)
 	
 	self.thumbTable = {}
 	for i = 1, 5, 1
@@ -84,8 +90,11 @@ function Game:update()
 	
 	if gameOn then
 		
-		if self.currentTry > 5 then
+		if self.currentTry > 5 and self.gameWillEnd then
 			self:GameOver(GAMEOVER_NORMAL)
+		elseif self.currentTry > 5 then
+			self:IncreaseLevel()
+			self.currentTry = 1
 		end
 		
 		
@@ -101,6 +110,13 @@ function Game:update()
 			return
 		end
 		
+		if self.levelFrameCount >= 0 then
+			self.levelFrameCount += 1
+			if self.levelFrameCount > 60 then
+				self:StopLevelDisplay()
+			end
+		end
+
 		if playdate.buttonIsPressed("a") and not self.jumper:isFalling() and not self.jumper:isSplatting() and not self.jumper:isSplatted() and self.jumper:isOnScreen() then
 			self.heightAtJump = self.copter:getHeight()
 			self.jumper:startFalling()
@@ -114,6 +130,7 @@ function Game:update()
 					self.thumbTable[self.currentTry]:setDown()
 					self.thumbTable[self.currentTry]:setVisible(true)
 					self.currentTry += 1
+					self.gameWillEnd = true
 					
 					break
 				elseif c.other:isa(Wagon) then
@@ -174,6 +191,7 @@ function Game:stopSuccessfulLanding()
 	self.jumper:setVisible(true)
 	self.jumper:setUpdatesEnabled(true)
 	self.jumper:reset()
+	self.jumper:moveWithCopter(self.copter.position.x, self.copter.position.y)
 	self.wagon:stopSuccessfulLanding()
 	self.successAnimationFrameCount = -1
 	
@@ -213,4 +231,30 @@ function playdate.debugDraw()
 		--gfx.drawRect(debug_rect2)
 		--assert(false)
 	end
+end
+
+function Game:IncreaseLevel()
+	self.currentLevel += 1
+	self.displayedLevel:setValue("LEVEL " .. tostring(self.currentLevel))
+	if self.currentGravity > 1 then
+		self.currentGravity -= 1
+	end
+	self.wagon:increaseSpeed()
+	
+	for i = 1, 5, 1
+	do
+		self.thumbTable[i]:setVisible(false)
+	end
+	
+	self:StartLevelDisplay()
+end
+
+function Game:StartLevelDisplay()
+	self.displayedLevel:setVisible(true)
+	self.levelFrameCount = 0
+end
+
+function Game:StopLevelDisplay()
+	self.displayedLevel:setVisible(false)
+	self.levelFrameCount = -1
 end
