@@ -90,6 +90,9 @@ function Game:reset()
 	self.currentGravity = 4
 	self.gameWillEnd = false -- use this in case of splat
 	
+	self.displayedScore:setValue(string.format("%06d", self.currentScore))
+	self.displayedHiScore:setValue(string.format("%06d", self.currentHiScore))
+
 	self.jumper:setUpdatesEnabled(true)
 	self.wagon:setUpdatesEnabled(true)
 end
@@ -257,6 +260,10 @@ function Game:IncreaseLevel()
 		self.currentGravity -= 1
 	end
 	self.wagon:increaseSpeed()
+	
+	self.displayedSpeed:setValue(self.wagon:getStatus())
+	self.displayedGravity:setValue(self.gravityStatus[self.currentGravity])
+
 	
 	for i = 1, 5, 1
 	do
