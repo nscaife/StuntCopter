@@ -40,6 +40,12 @@ function Game:init()
 	self.displayedHiScore = Score()
 	self.displayedLevel = Level()
 	
+	self.saveData = playdate.datastore.read()
+	if self.saveData == nil then
+		self.saveData = {}
+		self.saveData["hiscore"] = 0
+	end
+	
 	self.displayedHeight:moveTo(330,189)
 	self.displayedSpeed:moveTo(330,206)
 	self.displayedGravity:moveTo(330,222)
@@ -84,14 +90,13 @@ function Game:reset()
 	self.levelFrameCount = -1
 	self.currentLevel = 1
 	self.currentScore = 0
-	self.currentHiScore = 0
 	self.currentTry = 1
 	self.heightAtJump = 0
 	self.currentGravity = 4
 	self.gameWillEnd = false -- use this in case of splat
 	
 	self.displayedScore:setValue(string.format("%06d", self.currentScore))
-	self.displayedHiScore:setValue(string.format("%06d", self.currentHiScore))
+	self.displayedHiScore:setValue(string.format("%06d", self.saveData["hiscore"]))
 
 	self.jumper:setUpdatesEnabled(true)
 	self.wagon:setUpdatesEnabled(true)
@@ -188,7 +193,7 @@ function Game:update()
 		self.displayedSpeed:setValue(self.wagon:getStatus())
 		self.displayedGravity:setValue(self.gravityStatus[self.currentGravity])
 		self.displayedScore:setValue(string.format("%06d", self.currentScore))
-		self.displayedHiScore:setValue(string.format("%06d", self.currentHiScore))
+		self.displayedHiScore:setValue(string.format("%06d", self.saveData["hiscore"]))
 		
 	else -- game is not on
 		if playdate.buttonIsPressed("b") then
@@ -220,7 +225,10 @@ end
 function Game:GameOver(reason)
 	
 	gameOn = false
-
+	if self.currentScore > self.saveData["hiscore"] then
+		self.saveData["hiscore"] = self.currentScore 
+		playdate.datastore.write(self.saveData)
+	end
 
 	if reason == GAMEOVER_NORMAL then
 		self:NewGameDisplay(true)
