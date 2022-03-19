@@ -23,23 +23,12 @@ local debug_y2 = -1
 local debug_rect
 local debug_rect2
 
-gameOn = true
+gameOn = false
 
 function Game:init()
 	
 	Game.super.init(self)
-
-	self.successAnimationFrameCount = -1
-	self.levelFrameCount = -1
-	self.currentLevel = 1
-	self.currentScore = 0
-	self.currentHiScore = 0
-	self.currentTry = 1
-	self.heightAtJump = 0
 	self.gravityStatus = {"FLYING", "OH BOY", "NORMAL", "HEAVY"}
-	self.currentGravity = 4
-	self.gameWillEnd = false -- use this in case of splat
-	
 	self.jumper = Jumper()
 	self.copter = Copter()
 	self.wagon = Wagon()
@@ -77,16 +66,39 @@ function Game:init()
 		self.thumbTable[i]:moveTo(45 + 15*i,206)
 		gfx.sprite.add(self.thumbTable[i])
 	end
-	
-	
 
+	
+	self:NewGameDisplay(true)
+
+	self:reset()
 end
 
 function Game:reset()
+	
+	for i = 1, 5, 1
+	do
+		self.thumbTable[i]:reset()
+	end
 
+	self.successAnimationFrameCount = -1
+	self.levelFrameCount = -1
+	self.currentLevel = 1
+	self.currentScore = 0
+	self.currentHiScore = 0
+	self.currentTry = 1
+	self.heightAtJump = 0
+	self.currentGravity = 4
+	self.gameWillEnd = false -- use this in case of splat
+	
+	self.jumper:setUpdatesEnabled(true)
+	self.wagon:setUpdatesEnabled(true)
 end
 
 function Game:update()
+	
+	self.copter:moveTo(self.copter.position)
+	self.wagon:moveTo(self.wagon.position)
+
 	
 	if gameOn then
 		
@@ -98,8 +110,6 @@ function Game:update()
 		end
 		
 		
-		self.copter:moveTo(self.copter.position)
-		self.wagon:moveTo(self.wagon.position)
 		
 		if self.successAnimationFrameCount >= 0 then
 			self.successAnimationFrameCount += 1
@@ -177,6 +187,10 @@ function Game:update()
 		self.displayedScore:setValue(string.format("%06d", self.currentScore))
 		self.displayedHiScore:setValue(string.format("%06d", self.currentHiScore))
 		
+	else -- game is not on
+		if playdate.buttonIsPressed("b") then
+			self:NewGameDisplay(false)
+		end
 	end
 end
 
@@ -206,19 +220,22 @@ function Game:GameOver(reason)
 
 
 	if reason == GAMEOVER_NORMAL then
-		assert(false)
+		self:NewGameDisplay(true)
 	elseif reason == GAMEOVER_DRIVER then
 		self.wagon:hitDriver()
 		self.jumper:setVisible(false)
+		self:NewGameDisplay(true)
 	elseif reason == GAMEOVER_HORSE then
 		self.wagon:hitHorse()
 		self.jumper:setVisible(false)
+		self:NewGameDisplay(true)
+
 	end
 
 		
 	--self.copter:setUpdatesEnabled(false)
 	self.jumper:setUpdatesEnabled(false)
-	self.wagon:setUpdatesEnabled(false)
+	--self.wagon:setUpdatesEnabled(false)
 end
 
 
@@ -257,4 +274,22 @@ end
 function Game:StopLevelDisplay()
 	self.displayedLevel:setVisible(false)
 	self.levelFrameCount = -1
+end
+
+function Game:NewGameDisplay(enabled)
+	if enabled then
+		--gameOn = false
+		self.displayedLevel:setValue("Press B to Start")
+		self.displayedLevel:setVisible(true)
+	else -- starting new game
+		gameOn = true
+		self.displayedLevel:setValue("")
+		self.displayedLevel:setVisible(false)
+		self:reset()
+		self.wagon:reset()
+		self.jumper:reset()
+		self.jumper:setVisible(true)
+
+	end
+
 end

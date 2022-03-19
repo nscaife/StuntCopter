@@ -11,23 +11,26 @@ function Wagon:init()
 	Wagon.super.init(self)
 
 	self.wagonImageTable = gfx.imagetable.new("img/wagon")
-		
 	self:setImage(self.wagonImageTable:getImage(1))
 	self:setZIndex(0)
 	self:setCenter(0,0)
 	self:setCollideRect(0, 0, self.width, self.height - 3)
 	self.position = geo.point.new(30, 167)
+	self:reset()
+end
+
+function Wagon:reset()
 	self.currentImageIndex = 1
 	self.slowFrameSkip = true
 	self.animateSuccess = false
 	self.status = {"WALK", "TROT", "GALLOP"}
 	self.speed = 1
+	self.dead = false
 end
-
 
 function Wagon:update()
 	
-	if gameOn then
+	if gameOn or not self.dead then
 		if not self.slowFrameSkip then
 			self.currentImageIndex += 1
 			self.slowFrameSkip = true
@@ -48,7 +51,6 @@ function Wagon:update()
 	
 		self:setImage(self.wagonImageTable[self.currentImageIndex])
 	end
-	
 end
 
 function Wagon:startSuccessfulLanding()
@@ -65,10 +67,12 @@ end
 
 function Wagon:hitDriver()
 	self:setImage(self.wagonImageTable[4])
+	self.dead = true
 end
 
 function Wagon:hitHorse()
 	self:setImage(self.wagonImageTable[5])
+	self.dead = true
 end
 
 function Wagon:setSpeed(s)

@@ -29,19 +29,21 @@ end
 
 function Copter:update()
 	
-	if playdate.buttonIsPressed("right") and playdate.buttonIsPressed("up") then
-		self.position:offset(1, -1)
-	elseif playdate.buttonIsPressed("right") and playdate.buttonIsPressed("down") then
-		self.position:offset(1, 1)
-	elseif playdate.buttonIsPressed("left") and playdate.buttonIsPressed("up") then
-		self.position:offset(-1, -1)
-	elseif playdate.buttonIsPressed("left") and playdate.buttonIsPressed("down") then
-		self.position:offset(-1, 1)
-	
-	elseif playdate.buttonIsPressed("left") then self.position:offset(-1, 0)
-	elseif playdate.buttonIsPressed("right") then self.position:offset(1, 0)
-	elseif playdate.buttonIsPressed("up") then self.position:offset(0, -1)
-	elseif playdate.buttonIsPressed("down") then self.position:offset(0, 1)
+	if gameOn then
+		if playdate.buttonIsPressed("right") and playdate.buttonIsPressed("up") then
+			self.position:offset(1, -1)
+		elseif playdate.buttonIsPressed("right") and playdate.buttonIsPressed("down") then
+			self.position:offset(1, 1)
+		elseif playdate.buttonIsPressed("left") and playdate.buttonIsPressed("up") then
+			self.position:offset(-1, -1)
+		elseif playdate.buttonIsPressed("left") and playdate.buttonIsPressed("down") then
+			self.position:offset(-1, 1)
+		
+		elseif playdate.buttonIsPressed("left") then self.position:offset(-1, 0)
+		elseif playdate.buttonIsPressed("right") then self.position:offset(1, 0)
+		elseif playdate.buttonIsPressed("up") then self.position:offset(0, -1)
+		elseif playdate.buttonIsPressed("down") then self.position:offset(0, 1)
+		end
 	end
 	
 	if not slowFrameSkip then

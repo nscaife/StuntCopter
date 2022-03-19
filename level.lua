@@ -9,11 +9,11 @@ local f = gfx.font.new("font/ChicagoFLF-14")
 
 function Level:init()
 	Level.super.init(self)
-	self.img = gfx.image.new(60, 14)
+	self.img = gfx.image.new(200, 14)
 	self:setZIndex(32767)
 	self:setImage(self.img)
 	self.displayedValue = ""
-	self:moveTo(150,30)
+	self:moveTo(200,30)
 	self:setVisible(false)
 end
 
@@ -24,7 +24,7 @@ function Level:setValue(v)
 		gfx.pushContext(self.img)
 		
 		gfx.setFont(f)
-		gfx.drawText(v, 0, 0)
+		gfx.drawTextAligned(v, 100, 0, kTextAlignment.center)
 		gfx.popContext()
 		self.displayedValue = v
 	end
