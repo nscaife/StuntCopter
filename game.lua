@@ -9,6 +9,7 @@ import "score"
 import "thumb"
 import "level"
 import "yoke"
+import "sound"
 
 class('Game').extends(playdate.graphics.sprite)
 local gfx <const> = playdate.graphics
@@ -44,6 +45,7 @@ function Game:init()
 	self.displayedHiScore = Score()
 	self.displayedLevel = Level()
 	self.yoke = Yoke()
+	self.sound = Sound()
 	
 	self.saveData = playdate.datastore.read()
 	if self.saveData == nil then
@@ -110,6 +112,8 @@ end
 function Game:update()
 	
 	if gameOn then
+		
+		self.sound:startCopter()
 		self.copter.position.x = self.copter.position.x + self.yoke.x_velocity
 		self.copter.position.y = self.copter.position.y + self.yoke.y_velocity
 		
@@ -117,7 +121,8 @@ function Game:update()
 		if self.copter.x > 435 then self.copter.position.x = -70 end
 		if self.copter.x < -70 then self.copter.position.x = 435 end
 		if self.copter:getHeight() < COPTER_MIN_HEIGHT then self.copter.position.y = COPTER_MAX_HEIGHT - COPTER_MIN_HEIGHT end
-
+	else
+		self.sound:stopCopter()
 	end
 
 	
@@ -166,7 +171,7 @@ function Game:update()
 					self.thumbTable[self.currentTry]:setVisible(true)
 					self.currentTry += 1
 					self.gameWillEnd = true
-					
+					self.sound:death()
 					break
 				elseif c.other:isa(Wagon) then
 					-- we need to figure out where on the wagon it collided
@@ -178,14 +183,19 @@ function Game:update()
 						self:startSuccessfulLanding()
 						self.currentScore += self.heightAtJump
 						self.thumbTable[self.currentTry]:setVisible(true)
+						if self.currentTry <= 4 then
+							self.sound:success(self.currentTry)
+						end
 						self.currentTry += 1
 					elseif dist < 46 then
 						print("jump kills driver!")
+						self.sound:death()
 						self.thumbTable[self.currentTry]:setDown()
 						self.thumbTable[self.currentTry]:setVisible(true)
 						self:GameOver(GAMEOVER_DRIVER)
 					else
 						print("jump kills horse!")
+						self.sound:death()
 						self.thumbTable[self.currentTry]:setDown()
 						self.thumbTable[self.currentTry]:setVisible(true)
 						self:GameOver(GAMEOVER_HORSE)
@@ -296,6 +306,7 @@ function Game:IncreaseLevel()
 	end
 	
 	self:StartLevelDisplay()
+	self.sound:newLevel(self.currentLevel)
 end
 
 function Game:StartLevelDisplay()
