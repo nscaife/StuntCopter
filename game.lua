@@ -216,7 +216,7 @@ function Game:update()
 		--gfx.drawText(self.copter:getHeight(), 330, 189)
 		
 		-- refresh all of the displayed values
-		self.displayedHeight:setValue(self.copter:getHeight())
+		self.displayedHeight:setValue(string.format("%03d", self.copter:getHeight()))
 		self.displayedSpeed:setValue(self.wagon:getStatus())
 		self.displayedGravity:setValue(self.gravityStatus[self.currentGravity])
 		self.displayedScore:setValue(string.format("%06d", self.currentScore))
